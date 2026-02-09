@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   colHSN: { width: "12%", textAlign: "center" },
   colQty: { width: "10%", textAlign: "right" },
   colRate: { width: "15%", textAlign: "right" },
-  colAmount: { width: "18%", textAlign: "right", fontWeight: "semibold" },
+  colAmount: { width: "18%", textAlign: "right"},
   
   // Calculations with modern card
   calculationsContainer: {
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: "#edf2f7",
     fontSize: 7,
-    color: "#4a5568",
+    color: "#111111",
     fontStyle: "italic",
     lineHeight: 1.3,
   },
@@ -349,7 +349,7 @@ const Header = ({ invoice }) => (
     <View style={styles.logoContainer}>
       <Image
         style={styles.logo}
-        src="NEXT_PUBLIC_APP_URL/logo.jpeg"
+        src="/logo.jpeg"
       />
       <Text style={styles.companyAddress}>
         UG 12, Shree Krishna AC Mall, Dindoli, Surat, Gujarat 394210
@@ -399,8 +399,8 @@ const AddressSection = ({ invoice }) => (
         </View>
       </View>
       <View style={styles.addressContent}>
-        <Text style={styles.addressName}>{invoice.receiver.name}</Text>
-        <Text style={styles.addressField}>{invoice.receiver.address}</Text>
+        <Text style={styles.addressName}><Text>Name : </Text>{invoice.receiver.name}</Text>
+        <Text style={styles.addressField}><Text>Address : </Text>{invoice.receiver.address}</Text>
         <Text style={styles.addressField}>Mobile: {invoice.receiver.mobile}</Text>
         <Text style={styles.addressField}>GSTIN: {invoice.receiver.gst}</Text>
       </View>
@@ -414,8 +414,8 @@ const AddressSection = ({ invoice }) => (
         </View>
       </View>
       <View style={styles.addressContent}>
-        <Text style={styles.addressName}>{invoice.consignee.name}</Text>
-        <Text style={styles.addressField}>{invoice.consignee.address}</Text>
+        <Text style={styles.addressName}><Text>Name : </Text>{invoice.consignee.name}</Text>
+        <Text style={styles.addressField}><Text>Address : </Text>{invoice.consignee.address}</Text>
         <Text style={styles.addressField}>Mobile: {invoice.consignee.mobile}</Text>
         <Text style={styles.addressField}>GSTIN: {invoice.consignee.gst}</Text>
       </View>
@@ -535,13 +535,13 @@ const FinalSections = ({ invoice }) => (
       <View style={[styles.infoCard, styles.companyCard]}>
         <Text style={styles.cardTitle}>COMPANY DETAILS</Text>
         <Text style={styles.cardText}>
-          Solar Solutions Pro{"\n"}
+          Sunburn Renewable Energy{"\n"}
           GSTIN: 24FIHPR5445A1ZC{"\n"}
           PAN: FIHPR5445A{"\n"}
-          State: Gujarat (24){"\n"}
-          <Text style={{ color: "#38a169", fontWeight: "bold" }}>
+          State: Surat, Gujarat (24){"\n"}
+          {/* <Text style={{ color: "#38a169", fontWeight: "bold" }}>
             Registered • MSME • ISO Certified
-          </Text>
+          </Text> */}
         </Text>
       </View>
     </View>

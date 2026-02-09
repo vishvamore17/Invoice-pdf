@@ -5,13 +5,16 @@ import Invoice from "@/models/Invoice";
 export async function POST(req) {
   try {
     await connectDB();
-    const data = await req.json();
 
+    const data = await req.json();
     const invoice = await Invoice.create(data);
 
-    return NextResponse.json({ success: true, invoice });
+    return NextResponse.json(
+      { success: true, invoice },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error(error);
+    console.error("Invoice creation error:", error);
     return NextResponse.json(
       { success: false, message: "Failed to create invoice" },
       { status: 500 }

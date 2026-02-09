@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 /* 🔹 Reusable Input Component */
-const Field = ({ label, children, icon: Icon, error, isValid, touched } : {
+const Field = ({ label, children, icon: Icon, error, isValid, touched }: {
   label: string;
   children: React.ReactNode;
   icon?: React.ElementType;
@@ -137,13 +137,13 @@ export default function InvoiceForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [invoiceNumber, setInvoiceNumber] = useState('');
 
-  
+
   /* 🔢 Calculate totals for all items */
   useEffect(() => {
     let totalTaxable = 0;
     let totalGST = 0;
 
-    
+
     items.forEach(item => {
       const gross = item.qty * item.rate;
       const discountAmt = (gross * item.discount) / 100;
@@ -154,7 +154,7 @@ export default function InvoiceForm() {
       totalGST += gstAmt;
     });
 
-    
+
     setTotals({
       taxableValue: totalTaxable.toFixed(2),
       gstAmount: totalGST.toFixed(2),
@@ -179,14 +179,14 @@ export default function InvoiceForm() {
       return null;
     },
   };
-  
+
   const validateField = (
     section: SectionName,
     field: FieldName,
     value: string
   ): boolean => {
     const error = validationRules[field]?.(value) ?? null;
-  
+
     setValidationErrors(prev => ({
       ...prev,
       [section]: {
@@ -194,10 +194,10 @@ export default function InvoiceForm() {
         [field]: error,
       },
     }));
-  
+
     return !error;
   };
-  
+
   // Validate entire section
   const validateSection = (
     section: SectionName,
@@ -205,25 +205,25 @@ export default function InvoiceForm() {
   ): boolean => {
     const newErrors: Partial<Record<FieldName, string>> = {};
     let isValid = true;
-  
+
     (Object.keys(data) as FieldName[]).forEach(field => {
       const value = data[field];
       const error = validationRules[field]?.(value ?? "") ?? null;
-  
+
       if (error) {
         newErrors[field] = error;
         isValid = false;
       }
     });
-  
+
     setValidationErrors(prev => ({
       ...prev,
       [section]: newErrors,
     }));
-  
+
     return isValid;
   };
-  
+
   // Handle field blur (mark as touched and validate)
   const handleFieldBlur = (section: SectionName, field: FieldName) => {
     setTouchedFields(prev => ({
@@ -245,7 +245,7 @@ export default function InvoiceForm() {
   // Handle receiver changes
   const handleReceiverChange = (field: FieldName, value: string) => {
     setReceiver(prev => ({ ...prev, [field]: value }));
-    
+
     // Auto-validate if field was touched
     if (touchedFields.receiver[field]) {
       validateField('receiver', field, value);
@@ -255,7 +255,7 @@ export default function InvoiceForm() {
   // Handle consignee changes
   const handleConsigneeChange = (field: FieldName, value: string) => {
     setConsignee(prev => ({ ...prev, [field]: value }));
-    
+
     // Auto-validate if field was touched
     if (touchedFields.consignee[field]) {
       validateField('consignee', field, value);
@@ -319,9 +319,9 @@ export default function InvoiceForm() {
         (newReceiver[field] as string) = consignee[field];
       }
     });
-    
+
     setReceiver(newReceiver);
-    
+
     // Mark copied fields as touched and validate them
     const newTouched = { ...touchedFields.receiver };
     (Object.keys(consignee) as FieldName[]).forEach(field => {
@@ -330,7 +330,7 @@ export default function InvoiceForm() {
         validateField('receiver', field, consignee[field]);
       }
     });
-    
+
     setTouchedFields(prev => ({ ...prev, receiver: newTouched }));
   };
 
@@ -346,7 +346,7 @@ export default function InvoiceForm() {
   const validateForm = () => {
     // Validate receiver section
     const isReceiverValid = validateSection('receiver', receiver);
-    
+
     // Validate consignee section (only if any field is filled)
     const consigneeHasData = Object.values(consignee).some(value => value.trim());
     const isConsigneeValid = !consigneeHasData || validateSection('consignee', consignee);
@@ -387,7 +387,6 @@ export default function InvoiceForm() {
         items,
         totals,
         remarks,
-        invoiceNo: invoiceNumber,
         date: new Date(),
       };
 
@@ -404,7 +403,9 @@ export default function InvoiceForm() {
         return;
       }
 
-      const invoiceId = saveData.invoice._id;
+      const { _id: invoiceId, invoiceNo } = saveData.invoice;
+
+      setInvoiceNumber(invoiceNo);
 
       const res = await fetch("/api/invoice/download", {
         method: "POST",
@@ -423,12 +424,14 @@ export default function InvoiceForm() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Invoice-${invoiceNumber}.pdf`;
-      document.body.appendChild(a);
+      const year = new Date().getFullYear().toString().slice(-2);
+const seq = invoiceNo.split("-").pop(); // 0001
+
+a.download = `${invoiceNo}.pdf`;
+            document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-
       alert("Invoice saved & downloaded successfully ✅");
     } catch (error) {
       console.error(error);
@@ -437,20 +440,20 @@ export default function InvoiceForm() {
   };
 
   // Helper to get field validation status
- // Helper to get field validation status
-const getFieldStatus = (section: SectionName, field: FieldName) => {
-  const touched = touchedFields[section]?.[field];
-  const error = validationErrors[section]?.[field];
-  const value = section === 'receiver' ? receiver[field] : consignee[field];
-  const hasValue = !!value.trim();
-  
-  return {
-    touched: touched || false,
-    error,
-    isValid: touched && !error && hasValue,
-    hasError: touched && !!error
+  // Helper to get field validation status
+  const getFieldStatus = (section: SectionName, field: FieldName) => {
+    const touched = touchedFields[section]?.[field];
+    const error = validationErrors[section]?.[field];
+    const value = section === 'receiver' ? receiver[field] : consignee[field];
+    const hasValue = !!value.trim();
+
+    return {
+      touched: touched || false,
+      error,
+      isValid: touched && !error && hasValue,
+      hasError: touched && !!error
+    };
   };
-};
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
@@ -507,8 +510,8 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
             </div>
 
             <div className="space-y-4">
-              <Field 
-                label="Company/Client Name" 
+              <Field
+                label="Company/Client Name"
                 icon={Building2}
                 error={getFieldStatus('receiver', 'name').error}
                 isValid={getFieldStatus('receiver', 'name').isValid}
@@ -523,7 +526,7 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
                 />
               </Field>
 
-              <Field 
+              <Field
                 label="Address"
                 error={getFieldStatus('receiver', 'address').error}
                 isValid={getFieldStatus('receiver', 'address').isValid}
@@ -539,7 +542,7 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
               </Field>
 
               <div className="grid grid-cols-2 gap-4">
-                <Field 
+                <Field
                   label="Mobile No"
                   error={getFieldStatus('receiver', 'mobile').error}
                   isValid={getFieldStatus('receiver', 'mobile').isValid}
@@ -556,7 +559,7 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
                   />
                 </Field>
 
-                <Field 
+                <Field
                   label="GST No"
                   error={getFieldStatus('receiver', 'gst').error}
                   isValid={getFieldStatus('receiver', 'gst').isValid}
@@ -586,8 +589,8 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
             </div>
 
             <div className="space-y-4">
-              <Field 
-                label="Company/Client Name" 
+              <Field
+                label="Company/Client Name"
                 icon={Building2}
                 error={getFieldStatus('consignee', 'name').error}
                 isValid={getFieldStatus('consignee', 'name').isValid}
@@ -602,7 +605,7 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
                 />
               </Field>
 
-              <Field 
+              <Field
                 label="Address"
                 error={getFieldStatus('consignee', 'address').error}
                 isValid={getFieldStatus('consignee', 'address').isValid}
@@ -618,7 +621,7 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
               </Field>
 
               <div className="grid grid-cols-2 gap-4">
-                <Field 
+                <Field
                   label="Mobile No"
                   error={getFieldStatus('consignee', 'mobile').error}
                   isValid={getFieldStatus('consignee', 'mobile').isValid}
@@ -635,7 +638,7 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
                   />
                 </Field>
 
-                <Field 
+                <Field
                   label="GST No"
                   error={getFieldStatus('consignee', 'gst').error}
                   isValid={getFieldStatus('consignee', 'gst').isValid}
@@ -784,9 +787,10 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
                           <p className="text-red-500 text-xs mt-1">{errors[`itemGST_${index}`]}</p>
                         )}
                       </td>
-                      <td className="p-4 font-semibold">
+                      <td className="p-4 font-semibold text-black">
                         ₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
+
                       {items.length > 1 && (
                         <td className="p-4">
                           <button
@@ -876,16 +880,15 @@ const getFieldStatus = (section: SectionName, field: FieldName) => {
             {isReceiverValid() ? 'Save & Download PDF Invoice' : 'Fill Required Fields First'}
           </button>
           <p className="text-sm text-gray-500 mt-3">
-            {isReceiverValid() 
-              ? "Click to save the invoice and download as PDF" 
+            {isReceiverValid()
+              ? "Click to save the invoice and download as PDF"
               : "Please complete all required fields in Bill To section"}
           </p>
         </div>
 
         {/* Footer Note */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Solar Solutions Pro • GST No: 29AAICS1234M1Z5 • solar@solutionspro.in • +91 9876543210</p>
-          <p className="mt-1">Empowering Green Energy Across India • ISO 9001:2015 Certified</p>
+          <p>Sunburn Renewable Energy  • GST No: 24FIHPR5445A1ZC • sunburnrenewableenergy@gmail.com • +91 9081424287</p>
         </div>
       </div>
 
