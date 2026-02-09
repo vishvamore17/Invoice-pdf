@@ -349,7 +349,7 @@ const Header = ({ invoice }) => (
     <View style={styles.logoContainer}>
       <Image
         style={styles.logo}
-        src="/logo.jpeg"
+        src="NEXT_PUBLIC_APP_URL/logo.jpeg"
       />
       <Text style={styles.companyAddress}>
         UG 12, Shree Krishna AC Mall, Dindoli, Surat, Gujarat 394210
